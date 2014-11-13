@@ -26,15 +26,6 @@ fi;
   set -e;
   bin/cpanm -v --notest -l $PWD/.extlib/ --installdeps . < /dev/null;
 );
-
-if [ $? == 0 ]; then
-    echo "Done."
-    touch ".rake/pl"
-else
-    echo "Failed."
-    echo "As a first troubleshooting step, make sure development libraries and
-header files for Zlib are installed and try again.";
-fi
 SH
 end
 
@@ -50,8 +41,7 @@ file '.rake/js-bower' => ['.rake/js-npm', 'bower.json'] do
   end
 end
 
-file 'www/lib/bionode/amd/bionode.js' => ['.rake/js-bower',
-                                          'www/lib/bionode/lib/bionode.js'] do
+file 'www/lib/bionode/amd/bionode.js' => ['.rake/js-bower'] do
   system 'npm run-script amdfy-bionode'
 end
 

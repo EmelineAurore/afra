@@ -29,10 +29,6 @@ RUN apt-get install -y nodejs git
 
 RUN groupadd -r afra && useradd -m -g afra afra
 
-USER afra
-
-RUN cd /home/afra/ && git clone https://github.com/yeban/afra.git src
-
 ## Setup ruby
 USER root
 RUN cd /tmp/ && curl -o ruby-install-0.3.0.tar.gz -L https://github.com/postmodern/ruby-install/archive/v0.3.0.tar.gz \
@@ -61,6 +57,8 @@ EXPOSE 5432
 
 VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql"]
 
+RUN /etc/init.d/postgresql start
+
 USER root
 
 ## Setup Nginx
@@ -75,5 +73,17 @@ VOLUME ["/srv/www"]
 EXPOSE 80
 EXPOSE 443
 
+# Perl libs
+RUN apt-get install libperlio-gzip-perl
+
 #Setup Afra
-RUN /etc/init.d/postgresql start && cd /home/afra/src/ && su afra -s /bin/bash -c "source /usr/local/share/chruby/chruby.sh && chruby ruby-2.1.4 && /usr/local/src/ruby-2.1.4/bin/rake" && /etc/init.d/postgresql stop
+USER afra
+
+ADD . /home/afra/src
+
+WORKDIR /home/afra/src
+
+#RUN /bin/bash -c "source /usr/local/share/chruby/chruby.sh && chruby ruby-2.1.4 && /usr/local/src/ruby-2.1.4/bin/rake"
+
+#USER root
+#RUN /etc/init.d/postgresql stop
